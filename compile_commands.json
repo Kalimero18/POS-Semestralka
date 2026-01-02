@@ -1,0 +1,18 @@
+[
+  {
+    "directory": "/home/spirko3/Semestralka",
+    "command": "gcc -std=c11 -Wall -Wextra -Werror -pthread -Iinclude -c src/Smain.c",
+    "file": "src/Smain.c"
+  },
+  {
+    "directory": "/home/spirko3/Semestralka",
+    "command": "gcc -std=c11 -Wall -Wextra -Werror -pthread -Iinclude -c src/Cmain.c",
+    "file": "src/Cmain.c"
+  },
+  {
+    "directory": "/home/spirko3/Semestralka",
+    "command": "gcc -std=c11 -Wall -Wextra -Werror -pthread -Iinclude -c src/net.c",
+    "file": "src/net.c"
+  }
+]
+

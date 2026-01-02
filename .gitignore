@@ -1,0 +1,17 @@
+# binaries
+server
+client
+*.o
+
+# clangd / nvim
+.cache/
+.clangd_hidden_message
+
+# unix socket
+*.sock
+
+# editor backups
+*~
+*.swp
+*.swo
+
