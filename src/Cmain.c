@@ -27,7 +27,7 @@ typedef struct {
 	uint8_t *obstacles;
 	int obstacles_ready;
 
-	msg_summary_cell_t *summary;
+	msg_sum_cell_t *summary;
 	int summary_ready;
 
 	display_t display;
@@ -103,7 +103,7 @@ static void draw_world(client_ctx_t *ctx, int wx, int wy)
 	}
 }
 
-static void display_interactive(client_ctx_t *ctx, const msg_interactive_step_t *m)
+static void display_interactive(client_ctx_t *ctx, const msg_int_t *m)
 {
 	clear_screen();
 	printf("=== INTERACTIVE MODE ===\n\n");
@@ -145,7 +145,7 @@ static void display_summary(client_ctx_t *ctx)
 				continue;
 			}
 
-			msg_summary_cell_t *c = &ctx->summary[id];
+			msg_sum_cell_t *c = &ctx->summary[id];
 			if (ctx->display == DISPLAY_AVG)
 				printf("%6.2f ", c->avg_steps);
 			else
@@ -185,7 +185,7 @@ static void *recv_thread(void *arg)
 			pthread_mutex_unlock(&ctx->mtx);
 
 		} else if (hdr.type == MSG_INTERACTIVE_STEP) {
-			msg_interactive_step_t msg;
+			msg_int_t msg;
 
 			if (hdr.size != sizeof(msg)) {
 				uint8_t *skip = malloc(hdr.size);
@@ -205,7 +205,7 @@ static void *recv_thread(void *arg)
 			display_interactive(ctx, &msg);
 
 		} else if (hdr.type == MSG_SUMMARY_DATA) {
-			msg_summary_cell_t *buf = malloc(hdr.size);
+			msg_sum_cell_t *buf = malloc(hdr.size);
 			if (!buf)
 				break;
 
@@ -239,7 +239,7 @@ static void *recv_thread(void *arg)
 	return NULL;
 }
 
-static void run_client(const simulation_config_t *cfg, const char *sock_path, int send_cfg)
+static void run_client(const config *cfg, const char *sock_path, int send_cfg)
 {
 	client_ctx_t ctx;
 
@@ -453,7 +453,7 @@ static void menu_new(void)
 {
 	menu_header();
 
-	simulation_config_t cfg;
+	config cfg;
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.start_type = SIM_NEW;
 
@@ -506,7 +506,7 @@ static void menu_load(void)
 {
 	menu_header();
 
-	simulation_config_t cfg;
+	config cfg;
 	memset(&cfg, 0, sizeof(cfg));
 	cfg.start_type = SIM_LOAD;
 	cfg.mode = SIM_MODE_SUMMARY;
@@ -549,7 +549,7 @@ static void menu_connect(void)
 	char sock[108];
 	server_sock_from_pid(sock, sizeof(sock), (pid_t)pid);
 
-	simulation_config_t dummy;
+	config dummy;
 	memset(&dummy, 0, sizeof(dummy));
 
 	dummy.world_width = ask_int("World width: ");

@@ -16,9 +16,9 @@ static int expect_word(FILE *f, const char *w)
 }
 
 int save_simulation(const char *path,
-		    const simulation_config_t *cfg,
+		    const config *cfg,
 		    const uint8_t *obstacles,
-		    const msg_summary_cell_t *summary_cells)
+		    const msg_sum_cell_t *summary_cells)
 {
 	if (!path || !cfg || !summary_cells)
 		return -1;
@@ -64,9 +64,9 @@ int save_simulation(const char *path,
 }
 
 int load_simulation(const char *path,
-		    simulation_config_t *cfg_out,
+		    config *cfg_out,
 		    uint8_t **obstacles_out,
-		    msg_summary_cell_t **summary_out)
+		    msg_sum_cell_t **summary_out)
 {
 	if (!path || !cfg_out || !obstacles_out || !summary_out)
 		return -1;
@@ -125,7 +125,7 @@ int load_simulation(const char *path,
 		}
 	}
 
-	msg_summary_cell_t *sum = calloc((size_t)(w * h), sizeof(*sum));
+	msg_sum_cell_t *sum = calloc((size_t)(w * h), sizeof(*sum));
 	if (!sum)
 		goto fail_obs;
 

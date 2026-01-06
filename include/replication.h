@@ -8,26 +8,26 @@
 typedef struct {
 	uint8_t hit;
 	uint32_t steps;
-} replication_cell_result_t;
+} rep_cell_res_t;
 
 typedef struct {
 	int width;
 	int height;
-	replication_cell_result_t *cells;
-} replication_result_t;
+	rep_cell_res_t *cells;
+} rep_res_t;
 
 /* vykoná jednu replikáciu nad celým svetom */
-replication_result_t *replication_run(
+rep_res_t *rep_run(
 	const world_t *world,
 	const walker_probs_t *probs,
 	uint32_t max_steps
 );
 
-void replication_destroy(replication_result_t *res);
+void rep_destroy(rep_res_t *res);
 
 /* získa výsledok pre políčko (x,y) */
-replication_cell_result_t replication_get(
-	const replication_result_t *res,
+rep_cell_res_t rep_get(
+	const rep_res_t *res,
 	int x,
 	int y
 );

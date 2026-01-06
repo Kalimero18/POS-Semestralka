@@ -22,11 +22,11 @@ typedef struct {
 } clients_t;
 
 typedef struct {
-	simulation_config_t cfg;
+	config cfg;
 	int cfg_set;
 
 	int done;
-	msg_summary_cell_t *summary_cells;
+	msg_sum_cell_t *summary_cells;
 
 	uint8_t *obstacles;
 
@@ -118,7 +118,7 @@ static int is_odd_positive(int v)
 	return (v > 0) && (v % 2 == 1);
 }
 
-static int validate_cfg(const simulation_config_t *cfg)
+static int validate_cfg(const config *cfg)
 {
 	if (cfg->start_type == SIM_NEW) {
 		if (!is_odd_positive(cfg->world_width) || !is_odd_positive(cfg->world_height))
@@ -153,7 +153,7 @@ static double rnd01(void)
 	return (double)rand() / ((double)RAND_MAX + 1.0);
 }
 
-static void wrap_xy(const simulation_config_t *cfg, int *x, int *y)
+static void wrap_xy(const config *cfg, int *x, int *y)
 {
 	int min_x = -(cfg->world_width / 2);
 	int max_x = +(cfg->world_width / 2);
@@ -166,7 +166,7 @@ static void wrap_xy(const simulation_config_t *cfg, int *x, int *y)
 	if (*y > max_y) *y = min_y;
 }
 
-static int idx_of(const simulation_config_t *cfg, int x, int y)
+static int idx_of(const config *cfg, int x, int y)
 {
 	int ox = cfg->world_width / 2;
 	int oy = cfg->world_height / 2;
@@ -333,7 +333,7 @@ static void ensure_obstacles(server_t *s)
 
 static void compute_summary(server_t *s)
 {
-	const simulation_config_t *cfg = &s->cfg;
+	const config *cfg = &s->cfg;
 	int w = cfg->world_width;
 	int h = cfg->world_height;
 	int min_x = -(w / 2);
@@ -382,7 +382,7 @@ static void compute_summary(server_t *s)
 	}
 
 	free(s->summary_cells);
-	s->summary_cells = calloc((size_t)(w * h), sizeof(msg_summary_cell_t));
+	s->summary_cells = calloc((size_t)(w * h), sizeof(msg_sum_cell_t));
 	if (!s->summary_cells) {
 		free(hits);
 		free(steps_sum);
@@ -465,7 +465,7 @@ static void send_summary_to_fd(server_t *s, int fd)
 		return;
 
 	uint32_t total = (uint32_t)(s->cfg.world_width * s->cfg.world_height);
-	uint32_t bytes = total * (uint32_t)sizeof(msg_summary_cell_t);
+	uint32_t bytes = total * (uint32_t)sizeof(msg_sum_cell_t);
 
 	msg_header_t hdr;
 	hdr.type = MSG_SUMMARY_DATA;
@@ -484,7 +484,7 @@ static void run_interactive(server_t *s)
 		for (uint32_t step = 1; step <= s->cfg.max_steps; step++) {
 			step_one(s, &x, &y);
 
-			msg_interactive_step_t m;
+			msg_int_t m;
 			m.x = x;
 			m.y = y;
 			m.step = step;
@@ -531,7 +531,7 @@ static void *simulation_thread(void *arg)
 
 		if (s->summary_cells) {
 			uint32_t total = (uint32_t)(s->cfg.world_width * s->cfg.world_height);
-			uint32_t bytes = total * (uint32_t)sizeof(msg_summary_cell_t);
+			uint32_t bytes = total * (uint32_t)sizeof(msg_sum_cell_t);
 			broadcast(s, MSG_SUMMARY_DATA, s->summary_cells, bytes);
 		}
 
@@ -569,7 +569,7 @@ static void *simulation_thread(void *arg)
 
 	if (s->summary_cells) {
 		uint32_t total = (uint32_t)(s->cfg.world_width * s->cfg.world_height);
-		uint32_t bytes = total * (uint32_t)sizeof(msg_summary_cell_t);
+		uint32_t bytes = total * (uint32_t)sizeof(msg_sum_cell_t);
 		broadcast(s, MSG_SUMMARY_DATA, s->summary_cells, bytes);
 	}
 
@@ -592,12 +592,12 @@ static void *accept_thread(void *arg)
 		if (!s->cfg_set) {
 			msg_header_t hdr;
 			int r = read_full(fd, &hdr, sizeof(hdr));
-			if (r != 1 || hdr.type != MSG_CONFIG || hdr.size != sizeof(simulation_config_t)) {
+			if (r != 1 || hdr.type != MSG_CONFIG || hdr.size != sizeof(config)) {
 				close(fd);
 				continue;
 			}
 
-			simulation_config_t cfg;
+			config cfg;
 			r = read_full(fd, &cfg, sizeof(cfg));
 			if (r != 1 || !validate_cfg(&cfg)) {
 				close(fd);

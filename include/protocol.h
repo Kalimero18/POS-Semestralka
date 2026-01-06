@@ -21,12 +21,12 @@ typedef struct {
 	uint32_t step;
 	uint32_t replication;
 	uint32_t total_replications;
-} msg_interactive_step_t;
+} msg_int_t;
 
 typedef struct {
 	double avg_steps;
 	double probability;
-} msg_summary_cell_t;
+} msg_sum_cell_t;
 
 #endif
 

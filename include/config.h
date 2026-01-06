@@ -42,7 +42,7 @@ typedef struct {
 
 	char input_file[256];
 	char output_file[256];
-} simulation_config_t;
+} config;
 
 #endif
 
