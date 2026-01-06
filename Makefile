@@ -1,31 +1,37 @@
-CC = gcc
+CC      = gcc
+CFLAGS  = -std=c11 -Wall -Wextra -Werror -pthread -Iinclude
 
-CFLAGS = -std=c11 -Wall -Wextra -Werror -pthread -Iinclude
-LDFLAGS = -pthread
+SRC_DIR = src
+OBJ_DIR = src
 
-SERVER = server
-CLIENT = client
+SERVER_BIN = server
+CLIENT_BIN = client
 
-SERVER_SRCS = src/Smain.c src/net.c
-CLIENT_SRCS = src/Cmain.c src/net.c
+SERVER_SRCS = \
+	$(SRC_DIR)/Smain.c \
+	$(SRC_DIR)/net.c \
+	$(SRC_DIR)/persist.c
+
+CLIENT_SRCS = \
+	$(SRC_DIR)/Cmain.c \
+	$(SRC_DIR)/net.c
 
 SERVER_OBJS = $(SERVER_SRCS:.c=.o)
 CLIENT_OBJS = $(CLIENT_SRCS:.c=.o)
 
-all: $(SERVER) $(CLIENT)
+.PHONY: all clean server client
 
-$(SERVER): $(SERVER_OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
+all: server client
 
-$(CLIENT): $(CLIENT_OBJS)
-	$(CC) $(LDFLAGS) -o $@ $^
+server: $(SERVER_OBJS)
+	$(CC) -pthread -o $(SERVER_BIN) $(SERVER_OBJS)
 
-%.o: %.c
+client: $(CLIENT_OBJS)
+	$(CC) -pthread -o $(CLIENT_BIN) $(CLIENT_OBJS)
+
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(SERVER) $(CLIENT) $(SERVER_OBJS) $(CLIENT_OBJS)
-
-.PHONY: all clean
-
+	rm -f $(SRC_DIR)/*.o $(SERVER_BIN) $(CLIENT_BIN)
 
