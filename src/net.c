@@ -8,63 +8,72 @@
 
 #include "net.h"
 
-int net_listen_unix(const char *path) {
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (fd == -1) {
-    perror("socket");
-    exit(1);
-  }
+/* Táto trieda bola tvorená za pomoci AI, 
+ * konkrétne mi AI pomáhalo opraviť chyby pri počúvaní a príjimani pripojení */
 
-  struct sockaddr_un addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, path, sizeof(addr.sun_path) - 1);
+/* vytvorí UNIX socket a začne počúvať na danej ceste */
+int net_listen_unix(const char *path)
+{
+    int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0); /* lokálna komunikácia, obojsmerný prenos */                    if (sock_fd == -1) {
+        perror("socket");
+        exit(1);
+    }
 
-  unlink(path);
+    struct sockaddr_un addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, path, sizeof(addr.sun_path) - 1); /* cesta k suboru, kde sa budu prosey pripajat*/
 
-  if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-    perror("bind");
-    close(fd);
-    exit(1);
-  }
+    /* odstráni starý socket súbor, ak existuje */
+    unlink(path);
 
-  if (listen(fd, 1) == -1) {
-    perror("listen");
-    close(fd);
-    exit(1);
-  }
+    if (bind(sock_fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
+        perror("bind");
+        close(sock_fd);
+        exit(1);
+    }
 
-  return fd;
+    if (listen(sock_fd, 1) == -1) {
+        perror("listen");
+        close(sock_fd);
+        exit(1);
+    }
+
+    return sock_fd;
 }
 
-int net_accept(int listen_fd) {
-  int fd = accept(listen_fd, NULL, NULL);
-  if (fd == -1) {
-    perror("accept");
-    exit(1);
-  }
-  return fd;
+/* prijme nové pripojenie */
+int net_accept(int listen_fd)
+{
+    int client_fd = accept(listen_fd, NULL, NULL);
+    if (client_fd == -1) {
+        perror("accept");
+        exit(1);
+    }
+
+    return client_fd;
 }
 
-int net_connect_unix(const char *path) {
-  int fd = socket(AF_UNIX, SOCK_STREAM, 0);
-  if (fd == -1) {
-    perror("socket");
-    return -1;
-  }
+/* pripojí sa k UNIX socketu */
+int net_connect_unix(const char *path)
+{
+    int sock_fd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (sock_fd == -1) {
+        perror("socket");
+        return -1;
+    }
 
-  struct sockaddr_un addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sun_family = AF_UNIX;
-  strncpy(addr.sun_path, path, sizeof(addr.sun_path) - 1);
+    struct sockaddr_un addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    strncpy(addr.sun_path, path, sizeof(addr.sun_path) - 1);
 
-  if (connect(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
-    perror("connect");
-    close(fd);
-    return -1;
-  }
+    if (connect(sock_fd, (struct sockaddr *)&addr, sizeof(addr)) == -1) {
+        perror("connect");
+        close(sock_fd);
+        return -1;
+    }
 
-  return fd;
+    return sock_fd;
 }
-
 

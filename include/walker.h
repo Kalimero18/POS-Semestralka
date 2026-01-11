@@ -4,23 +4,24 @@
 #include <stdint.h>
 #include "world.h"
 
+/* pravdepodobnosti pohybu */
 typedef struct {
-	double p_up;
-	double p_down;
-	double p_left;
-	double p_right;
+    double p_up;
+    double p_down;
+    double p_left;
+    double p_right;
 } walker_probs_t;
 
 typedef struct {
-	int x;
-	int y;
-	walker_probs_t probs;
+    int x;
+    int y;
+    walker_probs_t probs;   /* pravdepodobnosti pohybu */
 } walker_t;
 
-/* inicializuje chodca na pozícii (x,y) s danými pravdepodobnosťami */
+/* inicializuje chodca */
 void walker_init(walker_t *w, int x, int y, walker_probs_t probs);
 
-/* vykoná jeden náhodný krok podľa pravdepodobností a sveta */
+/* náhodný krok */
 void walker_step(walker_t *w, const world_t *world);
 
 #endif
